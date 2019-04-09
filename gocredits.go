@@ -2,6 +2,7 @@ package gocredits
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"go/build"
@@ -37,9 +38,9 @@ func Run(argv []string, outStream, errStream io.Writer) error {
 	fs.SetOutput(errStream)
 	ver := fs.Bool("version", false, "display version")
 	var (
-		format = fs.String("f", "", "format")
-		write  = fs.Bool("w", false, "write result to CREDITS file instead of stdout")
-		// printJSON = fs.Bool("json", false, "data to be printed in JSON format")
+		format    = fs.String("f", "", "format")
+		write     = fs.Bool("w", false, "write result to CREDITS file instead of stdout")
+		printJSON = fs.Bool("json", false, "data to be printed in JSON format")
 	)
 	if err := fs.Parse(argv); err != nil {
 		return err
@@ -55,6 +56,15 @@ func Run(argv []string, outStream, errStream io.Writer) error {
 	if err != nil {
 		return err
 	}
+	data := struct {
+		Licenses []*license
+	}{
+		Licenses: licenses,
+	}
+	if *printJSON {
+		return json.NewEncoder(outStream).Encode(data)
+	}
+
 	tmplStr := *format
 	if tmplStr == "" {
 		tmplStr = defaultTmpl
@@ -72,11 +82,7 @@ func Run(argv []string, outStream, errStream io.Writer) error {
 		defer f.Close()
 		out = f
 	}
-	return tmpl.Execute(out, struct {
-		Licenses []*license
-	}{
-		Licenses: licenses,
-	})
+	return tmpl.Execute(out, data)
 }
 
 func printVersion(out io.Writer) error {
