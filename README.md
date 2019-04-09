@@ -2,7 +2,6 @@ gocredits
 =======
 
 [![Build Status](https://travis-ci.org/Songmu/gocredits.svg?branch=master)][travis]
-[![Coverage Status](https://coveralls.io/repos/Songmu/gocredits/badge.svg?branch=master)][coveralls]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
 [![GoDoc](https://godoc.org/github.com/Songmu/gocredits?status.svg)][godoc]
 
@@ -11,7 +10,7 @@ gocredits
 [license]: https://github.com/Songmu/gocredits/blob/master/LICENSE
 [godoc]: https://godoc.org/github.com/Songmu/gocredits
 
-gocredits scrape LICENSES from dependencies and output CREDITS file
+gocredits creates CREDITS file from LICENSE files of dependencies
 
 ## Synopsis
 
@@ -20,6 +19,11 @@ gocredits -w .
 ```
 
 ## Description
+
+When distributing built executable in Go, we need to include LICENSE of the dependent
+libraries into the package, so gocredits bundle them together as a CREDITS file.
+
+To use `gocredits`, we should use go modules for dependency management.
 
 ## Installation
 
