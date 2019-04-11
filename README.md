@@ -15,7 +15,7 @@ gocredits creates CREDITS file from LICENSE files of dependencies
 ## Synopsis
 
 ```console
-gocredits -w .
+gocredits . > CREDITS
 ```
 
 ## Description
