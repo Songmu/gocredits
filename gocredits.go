@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"sort"
 	"strings"
 	"text/template"
 	"unicode/utf8"
@@ -173,25 +172,29 @@ func findLicense(dir string) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	var names []string
+	var (
+		bestScore = 0.0
+		fileName  = ""
+	)
 	for _, f := range files {
 		if f.IsDir() {
 			continue
 		}
 		n := f.Name()
-		if strings.HasPrefix(n, "LICENSE") {
-			names = append(names, n)
+		score := scoreLicenseName(n)
+		if score > bestScore {
+			bestScore = score
+			fileName = n
 		}
 	}
-	if len(names) == 0 {
+	if fileName == "" {
 		return "", "", fmt.Errorf("no LICENSE files found in %q", dir)
 	}
-	sort.Strings(names)
-	bs, err := ioutil.ReadFile(filepath.Join(dir, names[0]))
+	bs, err := ioutil.ReadFile(filepath.Join(dir, fileName))
 	if err != nil {
 		return "", "", err
 	}
-	return names[0], string(bs), nil
+	return fileName, string(bs), nil
 }
 
 // copied from cmd/go/internal/module/module.go
