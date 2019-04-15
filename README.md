@@ -27,9 +27,20 @@ To use `gocredits`, we should use go modules for dependency management.
 
 ## Installation
 
+### homebrew
+
 ```console
-% go get github.com/Songmu/gocredits
+% brew install Songmu/tap/gocredits
 ```
+
+### go get
+
+```console
+% go get github.com/Songmu/gocredits/cmd/gocredits
+```
+
+Built binaries are available on GitHub Releases.
+<https://github.com/Songmu/gocredits/releases>
 
 ## Author
 
