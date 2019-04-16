@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.0.4](https://github.com/Songmu/gocredits/compare/v0.0.3...v0.0.4) (2019-04-16)
+
+* use "go env" instead of using runtime.GOPATH() and build.Default.GOPATH [#4](https://github.com/Songmu/gocredits/pull/4) ([Songmu](https://github.com/Songmu))
+
 ## [v0.0.3](https://github.com/Songmu/gocredits/compare/v0.0.2...v0.0.3) (2019-04-12)
 
 * update finding license way [#3](https://github.com/Songmu/gocredits/pull/3) ([Songmu](https://github.com/Songmu))
