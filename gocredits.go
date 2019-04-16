@@ -5,13 +5,11 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"go/build"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"text/template"
 	"unicode/utf8"
@@ -94,9 +92,11 @@ type license struct {
 }
 
 func takeCredits(dir string) ([]*license, error) {
-	goroot := runtime.GOROOT()
+	goroot, err := run("go", "env", "GOROOT")
+	if err != nil {
+		return nil, err
+	}
 	var (
-		err   error
 		bs    []byte
 		lpath string
 	)
@@ -117,12 +117,11 @@ func takeCredits(dir string) ([]*license, error) {
 			Content:  string(bs),
 		},
 	}
-	gopath := os.Getenv("GOPATH")
-	if gopath == "" {
-		gopath = build.Default.GOPATH
+	gopath, err := run("go", "env", "GOPATH")
+	if err != nil {
+		return nil, err
 	}
 	gopkgmod := filepath.Join(gopath, "pkg", "mod")
-
 	gosum := filepath.Join(dir, "go.sum")
 	f, err := os.Open(gosum)
 	if err != nil {
