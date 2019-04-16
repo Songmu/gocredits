@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -107,7 +108,18 @@ func takeCredits(dir string) ([]*license, error) {
 		}
 	}
 	if err != nil {
-		return nil, err
+		resp, err := http.Get("https://golang.org/LICENSE?m=text")
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			return nil, fmt.Errorf("failed to fetch LICENSE of Go")
+		}
+		bs, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
 	}
 	ret := []*license{
 		&license{
