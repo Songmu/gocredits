@@ -73,7 +73,7 @@ func Run(argv []string, outStream, errStream io.Writer) error {
 	}
 	out := outStream
 	if *write {
-		f, err := os.OpenFile(filepath.Join(modPath, "CREDITS"), os.O_WRONLY|os.O_CREATE, 0644)
+		f, err := os.OpenFile(filepath.Join(modPath, "CREDITS"), os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 		if err != nil {
 			return err
 		}
