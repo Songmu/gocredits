@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.0.6](https://github.com/Songmu/gocredits/compare/v0.0.5...v0.0.6) (2019-04-27)
+
+* [bugfix] truncate before overwriting CREDITS file [#6](https://github.com/Songmu/gocredits/pull/6) ([Songmu](https://github.com/Songmu))
+
 ## [v0.0.5](https://github.com/Songmu/gocredits/compare/v0.0.4...v0.0.5) (2019-04-16)
 
 * fallback golang.org/LICENSE when LICENSE not found locally [#5](https://github.com/Songmu/gocredits/pull/5) ([Songmu](https://github.com/Songmu))
