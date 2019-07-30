@@ -122,7 +122,7 @@ func takeCredits(dir string) ([]*license, error) {
 		}
 	}
 	ret := []*license{
-		&license{
+		{
 			Name:     "Go (the standard library)",
 			URL:      "https://golang.org/",
 			FilePath: lpath,
