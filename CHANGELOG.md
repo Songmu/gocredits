@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.0.7](https://github.com/Songmu/gocredits/compare/v0.0.6...v0.0.7) (2019-09-22)
+
+* bump Go 1.13 and drop xerrors dependency [#8](https://github.com/Songmu/gocredits/pull/8) ([Songmu](https://github.com/Songmu))
+
 ## [v0.0.6](https://github.com/Songmu/gocredits/compare/v0.0.5...v0.0.6) (2019-04-27)
 
 * [bugfix] truncate before overwriting CREDITS file [#6](https://github.com/Songmu/gocredits/pull/6) ([Songmu](https://github.com/Songmu))
