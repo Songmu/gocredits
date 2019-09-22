@@ -2,10 +2,9 @@ package gocredits
 
 import (
 	"bytes"
+	"fmt"
 	"os/exec"
 	"strings"
-
-	"golang.org/x/xerrors"
 )
 
 func run(command string, args ...string) (string, error) {
@@ -14,7 +13,7 @@ func run(command string, args ...string) (string, error) {
 	cmd.Stderr = bufErr
 	out, err := cmd.Output()
 	if err != nil {
-		return "", xerrors.Errorf("command %q failed with following output: %s: %w",
+		return "", fmt.Errorf("command %q failed with following output: %s: %w",
 			strings.Join(append([]string{command}, args...), " "),
 			bufErr.String(),
 			err,
