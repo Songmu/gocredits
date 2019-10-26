@@ -1,9 +1,0 @@
-dist: xenial
-language: go
-go:
-- 1.x
-script:
-- make lint
-- make test
-after_script:
-- make cover
