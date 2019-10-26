@@ -92,6 +92,27 @@ type license struct {
 	Name, URL, FilePath, Content string
 }
 
+type licenseDir struct {
+	name, version string
+}
+
+type licenseDirs struct {
+	names []string
+	dirs  map[string][]*licenseDir
+}
+
+func (ld *licenseDirs) set(l *licenseDir) {
+	if ld.dirs == nil {
+		ld.dirs = make(map[string][]*licenseDir)
+	}
+	dirs, ok := ld.dirs[l.name]
+	if !ok {
+		ld.names = append(ld.names, l.name)
+	}
+	dirs = append(dirs, l)
+	ld.dirs[l.name] = dirs
+}
+
 func takeCredits(dir string) ([]*license, error) {
 	goroot, err := run("go", "env", "GOROOT")
 	if err != nil {
@@ -121,14 +142,12 @@ func takeCredits(dir string) ([]*license, error) {
 			return nil, err
 		}
 	}
-	ret := []*license{
-		{
-			Name:     "Go (the standard library)",
-			URL:      "https://golang.org/",
-			FilePath: lpath,
-			Content:  string(bs),
-		},
-	}
+	ret := []*license{{
+		Name:     "Go (the standard library)",
+		URL:      "https://golang.org/",
+		FilePath: lpath,
+		Content:  string(bs),
+	}}
 	gopath, err := run("go", "env", "GOPATH")
 	if err != nil {
 		return nil, err
@@ -147,6 +166,7 @@ func takeCredits(dir string) ([]*license, error) {
 	}
 	defer f.Close()
 
+	ld := &licenseDirs{}
 	scr := bufio.NewScanner(f)
 	for scr.Scan() {
 		stuff := strings.Fields(scr.Text())
@@ -156,24 +176,44 @@ func takeCredits(dir string) ([]*license, error) {
 		if strings.HasSuffix(stuff[1], "/go.mod") {
 			continue
 		}
-		encodedPath, err := encodeString(stuff[0])
-		if err != nil {
-			return nil, err
-		}
-		dir := filepath.Join(gopkgmod, encodedPath+"@"+stuff[1])
-		licenseFile, content, err := findLicense(dir)
-		if err != nil {
-			return nil, err
-		}
-		ret = append(ret, &license{
-			Name:     stuff[0],
-			URL:      fmt.Sprintf("https://%s", stuff[0]),
-			FilePath: filepath.Join(dir, licenseFile),
-			Content:  content,
+		ld.set(&licenseDir{
+			name:    stuff[0],
+			version: stuff[1],
 		})
 	}
 	if err := scr.Err(); err != nil {
 		return nil, err
+	}
+
+	for _, packageName := range ld.names {
+		encodedPath, err := encodeString(packageName)
+		if err != nil {
+			return nil, err
+		}
+		var found bool
+		dirs := ld.dirs[packageName]
+		for i := len(dirs) - 1; i >= 0; i-- {
+			dirInfo := dirs[i]
+			dir := filepath.Join(gopkgmod, encodedPath+"@"+dirInfo.version)
+			licenseFile, content, err := findLicense(dir)
+			if err != nil {
+				if os.IsNotExist(err) {
+					continue
+				}
+				return nil, err
+			}
+			ret = append(ret, &license{
+				Name:     packageName,
+				URL:      fmt.Sprintf("https://%s", packageName),
+				FilePath: filepath.Join(dir, licenseFile),
+				Content:  content,
+			})
+			found = true
+			break
+		}
+		if !found {
+			return nil, fmt.Errorf("no licenses found for %q", packageName)
+		}
 	}
 	return ret, nil
 }
