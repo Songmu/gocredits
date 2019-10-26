@@ -1,11 +1,11 @@
 gocredits
 =======
 
-[![Build Status](https://travis-ci.org/Songmu/gocredits.svg?branch=master)][travis]
+[![Test Status](https://github.com/Songmu/gocredits/workflows/test/badge.svg?branch=master)][actions]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
 [![GoDoc](https://godoc.org/github.com/Songmu/gocredits?status.svg)][godoc]
 
-[travis]: https://travis-ci.org/Songmu/gocredits
+[actions]: https://github.com/Songmu/gocredits/actions?workflow=test
 [coveralls]: https://coveralls.io/r/Songmu/gocredits?branch=master
 [license]: https://github.com/Songmu/gocredits/blob/master/LICENSE
 [godoc]: https://godoc.org/github.com/Songmu/gocredits
