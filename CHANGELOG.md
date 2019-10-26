@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.1.0](https://github.com/Songmu/gocredits/compare/v0.0.7...v0.1.0) (2019-10-27)
+
+* introduce GitHub Actions for CI [#11](https://github.com/Songmu/gocredits/pull/11) ([Songmu](https://github.com/Songmu))
+* better finding license way [#10](https://github.com/Songmu/gocredits/pull/10) ([Songmu](https://github.com/Songmu))
+
 ## [v0.0.7](https://github.com/Songmu/gocredits/compare/v0.0.6...v0.0.7) (2019-09-22)
 
 * bump Go 1.13 and drop xerrors dependency [#8](https://github.com/Songmu/gocredits/pull/8) ([Songmu](https://github.com/Songmu))
