@@ -25,8 +25,7 @@ jobs:
         bin/golint -set_exit_status ./...
       if: "matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'"
     - name: test
-      run: |
-        go test -coverprofile coverage.out ./...
+      run: go test -coverprofile coverage.out ./...
     - name: Convert coverage to lcov
       uses: jandelgado/gcov2lcov-action@v1.0.0
       with:
