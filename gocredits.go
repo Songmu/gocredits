@@ -239,7 +239,7 @@ func findLicense(dir string) (string, string, error) {
 		}
 	}
 	if fileName == "" {
-		return "", "", fmt.Errorf("no LICENSE files found in %q", dir)
+		return "", "", os.ErrNotExist
 	}
 	bs, err := ioutil.ReadFile(filepath.Join(dir, fileName))
 	if err != nil {
