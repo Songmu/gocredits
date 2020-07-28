@@ -30,20 +30,20 @@ func TestLicenseDirs_set(t *testing.T) {
 
 func TestTakeCredits(t *testing.T) {
 	tests := []struct {
-		name          string
-		dir           string
-		skipNoLicense bool
-		wantErr       error
+		name        string
+		dir         string
+		skipMissing bool
+		wantErr     error
 	}{
 		{"go.sub only", "gosum_only", false, nil},
 		{"go.mod only", "gomod_only", false, nil},
 		{"there is neither go.mod nor go.sum", "no_gomod_no_gosum", false, fmt.Errorf("use go modules")},
-		{"no licenses package found", "no_license", false, fmt.Errorf("no licenses found for \"github.com/Songmu/no_license_pkg\"")},
-		{"no licenses package found. but skip", "no_license", true, nil},
+		{"gocredits can't fild the license", "no_license", false, fmt.Errorf("could not find the license for \"github.com/Songmu/no_license_pkg\"")},
+		{"gocredits can't fild the license. but skip", "no_license", true, nil},
 	}
 	for _, tt := range tests {
 		dir := filepath.Join(testdataDir(), tt.dir)
-		_, gotErr := takeCredits(dir, tt.skipNoLicense)
+		_, gotErr := takeCredits(dir, tt.skipMissing)
 		if !reflect.DeepEqual(gotErr, tt.wantErr) {
 			t.Errorf("%s:\ngot  %v\nwant %v", tt.name, gotErr, tt.wantErr)
 		}
