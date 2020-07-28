@@ -12,29 +12,35 @@ jobs:
           - windows-latest
     steps:
     - name: setup go
-      uses: actions/setup-go@v1
+      uses: actions/setup-go@v2
       with:
         go-version: 1.x
+    - name: Set git to use LF
+      run: |
+        git config --global core.autocrlf false
+        git config --global core.eol lf
+      if: "matrix.os == 'windows-latest'"
     - name: checkout
-      uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
+      uses: actions/checkout@v2
     - name: lint
       run: |
-        GO111MODULE=off GOBIN=$(pwd)/bin go get golang.org/x/lint/golint
-        bin/golint -set_exit_status ./...
-      if: "matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'"
+        go get golang.org/x/lint/golint
+        golint -set_exit_status ./...
     - name: test
-      run: go test -coverprofile coverage.out ./...
-    - name: Convert coverage to lcov
-      uses: jandelgado/gcov2lcov-action@v1.0.0
-      with:
-          infile: coverage.out
-          outfile: coverage.lcov
-      if: "matrix.os == 'ubuntu-latest'"
-    - name: Coveralls
-      uses: coverallsapp/github-action@master
+      run: go test -coverprofile coverage.out -covermode atomic ./...
+    - name: Send coverage
+      uses: shogo82148/actions-goveralls@v1
       with:
         github-token: ${{ secrets.github_token }}
-        path-to-lcov: coverage.lcov
-      if: "matrix.os == 'ubuntu-latest'"
+        path-to-profile: coverage.out
+        parallel: true
+        job-number: ${{ strategy.job-index }}
+  finish:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - name: finish coverage report
+      uses: shogo82148/actions-goveralls@v1
+      with:
+        github-token: ${{ secrets.github_token }}
+        parallel-finished: true
