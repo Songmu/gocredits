@@ -35,7 +35,7 @@ func TestTakeCredits(t *testing.T) {
 		skipMissing bool
 		wantErr     error
 	}{
-		{"go.sub only", "gosum_only", false, nil},
+		{"go.sum only", "gosum_only", false, nil},
 		{"go.mod only", "gomod_only", false, nil},
 		{"there is neither go.mod nor go.sum", "no_gomod_no_gosum", false, fmt.Errorf("use go modules")},
 		{"gocredits can't fild the license", "no_license", false, fmt.Errorf("could not find the license for \"github.com/Songmu/no_license_pkg\"")},
