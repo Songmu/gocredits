@@ -36,9 +36,10 @@ func Run(argv []string, outStream, errStream io.Writer) error {
 	fs.SetOutput(errStream)
 	ver := fs.Bool("version", false, "display version")
 	var (
-		format    = fs.String("f", "", "format")
-		write     = fs.Bool("w", false, "write result to CREDITS file instead of stdout")
-		printJSON = fs.Bool("json", false, "data to be printed in JSON format")
+		format      = fs.String("f", "", "format")
+		write       = fs.Bool("w", false, "write result to CREDITS file instead of stdout")
+		printJSON   = fs.Bool("json", false, "data to be printed in JSON format")
+		skipMissing = fs.Bool("skip-missing", false, "skip when gocredits can't find the license")
 	)
 	if err := fs.Parse(argv); err != nil {
 		return err
@@ -50,7 +51,7 @@ func Run(argv []string, outStream, errStream io.Writer) error {
 	if modPath == "" {
 		modPath = "."
 	}
-	licenses, err := takeCredits(modPath)
+	licenses, err := takeCredits(modPath, *skipMissing)
 	if err != nil {
 		return err
 	}
@@ -113,7 +114,7 @@ func (ld *licenseDirs) set(l *licenseDir) {
 	ld.dirs[l.name] = dirs
 }
 
-func takeCredits(dir string) ([]*license, error) {
+func takeCredits(dir string, skipMissing bool) ([]*license, error) {
 	goroot, err := run("go", "env", "GOROOT")
 	if err != nil {
 		return nil, err
@@ -212,7 +213,11 @@ func takeCredits(dir string) ([]*license, error) {
 			break
 		}
 		if !found {
-			return nil, fmt.Errorf("no licenses found for %q", packageName)
+			if skipMissing {
+				log.Printf("could not find the license for %q", packageName)
+				continue
+			}
+			return nil, fmt.Errorf("could not find the license for %q", packageName)
 		}
 	}
 	return ret, nil
@@ -239,7 +244,7 @@ func findLicense(dir string) (string, string, error) {
 		}
 	}
 	if fileName == "" {
-		return "", "", fmt.Errorf("no LICENSE files found in %q", dir)
+		return "", "", os.ErrNotExist
 	}
 	bs, err := ioutil.ReadFile(filepath.Join(dir, fileName))
 	if err != nil {
