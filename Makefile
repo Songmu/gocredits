@@ -37,8 +37,8 @@ build:
 install:
 	go install -ldflags=$(BUILD_LDFLAGS) ./cmd/gocredits
 
-.PHONY: bump
-bump: devel-deps
+.PHONY: release
+release: devel-deps
 	godzil release
 
 CREDITS: devel-deps
@@ -51,7 +51,4 @@ crossbuild: CREDITS
 
 .PHONY: upload
 upload:
-	ghr v$(VERSION) dist/v$(VERSION)
-
-.PHONY: release
-release: crossbuild upload
+	ghr -body="$$(./godzil changelog --latest -F markdown)" v$(VERSION) dist/v$(VERSION)
