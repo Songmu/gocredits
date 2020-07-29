@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.2.0](https://github.com/Songmu/gocredits/compare/v0.1.0...v0.2.0) (2020-07-29)
+
+* update meta files [#14](https://github.com/Songmu/gocredits/pull/14) ([Songmu](https://github.com/Songmu))
+* Add option for skip when no licenses found for package [#13](https://github.com/Songmu/gocredits/pull/13) ([k1LoW](https://github.com/k1LoW))
+
 ## [v0.1.0](https://github.com/Songmu/gocredits/compare/v0.0.7...v0.1.0) (2019-10-27)
 
 * introduce GitHub Actions for CI [#11](https://github.com/Songmu/gocredits/pull/11) ([Songmu](https://github.com/Songmu))
