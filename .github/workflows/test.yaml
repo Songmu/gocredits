@@ -28,7 +28,6 @@ jobs:
         golint -set_exit_status ./...
     - name: test
       run: |
-        (cd .. && env GO111MODULE=on go get github.com/Songmu/gocredits@v0.1.0)
         go test -coverprofile coverage.out -covermode atomic ./...
     - name: Send coverage
       uses: shogo82148/actions-goveralls@v1
