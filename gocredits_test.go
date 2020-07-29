@@ -2,7 +2,9 @@ package gocredits
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"testing"
@@ -29,20 +31,45 @@ func TestLicenseDirs_set(t *testing.T) {
 }
 
 func TestTakeCredits(t *testing.T) {
+	tmpd, err := ioutil.TempDir("", "gocredits-")
+	if err != nil {
+		t.Fatal(err)
+	}
+	origCache := os.Getenv("GOCACHE")
+	os.Setenv("GOCACHE", tmpd)
+	defer os.Setenv("GOCACHE", origCache)
+
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(tmpd); err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := exec.Command("go", "get", "github.com/Songmu/gocredits@v0.1.0")
+	cmd.Env = append(os.Environ(), "GO111MODULE=on")
+	if err := cmd.Run(); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(wd); err != nil {
+		t.Fatal(err)
+	}
+
 	tests := []struct {
 		name        string
 		dir         string
 		skipMissing bool
 		wantErr     error
 	}{
-		{"go.sub only", "gosum_only", false, nil},
+		{"go.sum only", "gosum_only", false, nil},
 		{"go.mod only", "gomod_only", false, nil},
 		{"there is neither go.mod nor go.sum", "no_gomod_no_gosum", false, fmt.Errorf("use go modules")},
 		{"gocredits can't fild the license", "no_license", false, fmt.Errorf("could not find the license for \"github.com/Songmu/no_license_pkg\"")},
 		{"gocredits can't fild the license. but skip", "no_license", true, nil},
 	}
 	for _, tt := range tests {
-		dir := filepath.Join(testdataDir(), tt.dir)
+		dir := filepath.Join(testdataDir(t), tt.dir)
 		_, gotErr := takeCredits(dir, tt.skipMissing)
 		if !reflect.DeepEqual(gotErr, tt.wantErr) {
 			t.Errorf("%s:\ngot  %v\nwant %v", tt.name, gotErr, tt.wantErr)
@@ -50,8 +77,15 @@ func TestTakeCredits(t *testing.T) {
 	}
 }
 
-func testdataDir() string {
-	wd, _ := os.Getwd()
-	dir, _ := filepath.Abs(filepath.Join(wd, "testdata"))
+func testdataDir(t *testing.T) string {
+	t.Helper()
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir, err := filepath.Abs(filepath.Join(wd, "testdata"))
+	if err != nil {
+		t.Fatal(err)
+	}
 	return dir
 }
