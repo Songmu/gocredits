@@ -36,7 +36,7 @@ To use `gocredits`, we should use go modules for dependency management.
 ### go get
 
 ```console
-% go get github.com/Songmu/gocredits/cmd/gocredits
+% go install github.com/Songmu/gocredits/cmd/gocredits@latest
 ```
 
 Built binaries are available on GitHub Releases.
