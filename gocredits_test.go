@@ -43,15 +43,15 @@ func TestTakeCredits(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if err := os.Chdir(tmpd); err != nil {
 		t.Fatal(err)
 	}
-
-	cmd := exec.Command("go", "get", "github.com/Songmu/gocredits@v0.1.0")
-	cmd.Env = append(os.Environ(), "GO111MODULE=on")
+	cmd := exec.Command("go", "install", "github.com/Songmu/gocredits/cmd/gocredits@v0.1.0")
 	if err := cmd.Run(); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := os.Chdir(wd); err != nil {
 		t.Fatal(err)
 	}
