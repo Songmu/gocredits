@@ -1,13 +1,12 @@
 gocredits
 =======
 
-[![Test Status](https://github.com/Songmu/gocredits/workflows/test/badge.svg?branch=master)][actions]
+[![Test Status](https://github.com/Songmu/gocredits/workflows/test/badge.svg?branch=main)][actions]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/Songmu/gocredits)][PkgGoDev]
 
 [actions]: https://github.com/Songmu/gocredits/actions?workflow=test
-[coveralls]: https://coveralls.io/r/Songmu/gocredits?branch=master
-[license]: https://github.com/Songmu/gocredits/blob/master/LICENSE
+[license]: https://github.com/Songmu/gocredits/blob/main/LICENSE
 [PkgGoDev]: https://pkg.go.dev/github.com/Songmu/gocredits
 
 gocredits creates CREDITS file from LICENSE files of dependencies
