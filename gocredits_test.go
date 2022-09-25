@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"testing"
@@ -42,6 +43,15 @@ func TestTakeCredits(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	if err := os.Chdir(tmpd); err != nil {
+		t.Fatal(err)
+	}
+	cmd := exec.Command("go", "install", "github.com/Songmu/gocredits/cmd/gocredits@v0.1.0")
+	if err := cmd.Run(); err != nil {
+		t.Fatal(err)
+	}
+
 	if err := os.Chdir(wd); err != nil {
 		t.Fatal(err)
 	}
