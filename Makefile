@@ -31,7 +31,7 @@ DIST_DIR = dist
 crossbuild: CREDITS
 	rm -rf $(DIST_DIR)
 	godzil crossbuild -pv=v$(VERSION) -build-ldflags=$(BUILD_LDFLAGS) \
-      -os=linux,darwin -d=$(DIST_DIR) ./cmd/*
+      -os=linux,darwin,windows -d=$(DIST_DIR) ./cmd/*
 	cd $(DIST_DIR) && shasum -a 256 $$(find * -type f -maxdepth 0) > SHA256SUMS
 
 .PHONY: upload
