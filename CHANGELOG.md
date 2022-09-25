@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.3.0](https://github.com/Songmu/gocredits/compare/v0.2.0...v0.3.0) - 2022-09-25
+- install binaries go install is better. by @bootjp in https://github.com/Songmu/gocredits/pull/15
+- introduce modern releng stack by @Songmu in https://github.com/Songmu/gocredits/pull/16
+
 ## [v0.2.0](https://github.com/Songmu/gocredits/compare/v0.1.0...v0.2.0) (2020-07-29)
 
 * update meta files [#14](https://github.com/Songmu/gocredits/pull/14) ([Songmu](https://github.com/Songmu))
@@ -36,4 +40,3 @@
 * bundle CREDITS file into built package [#1](https://github.com/Songmu/gocredits/pull/1) ([Songmu](https://github.com/Songmu))
 
 ## [v0.0.1](https://github.com/Songmu/gocredits/compare/c60a0691deb4...v0.0.1) (2019-04-10)
-
