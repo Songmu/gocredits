@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.3.1](https://github.com/Songmu/gocredits/compare/v0.3.0...v0.3.1) - 2023-11-11
+- docs: add the installation guide with aqua by @suzuki-shunsuke in https://github.com/Songmu/gocredits/pull/19
+
 ## [v0.3.0](https://github.com/Songmu/gocredits/compare/v0.2.0...v0.3.0) - 2022-09-25
 - install binaries go install is better. by @bootjp in https://github.com/Songmu/gocredits/pull/15
 - introduce modern releng stack by @Songmu in https://github.com/Songmu/gocredits/pull/16
