@@ -38,6 +38,12 @@ To use `gocredits`, we should use go modules for dependency management.
 % go install github.com/Songmu/gocredits/cmd/gocredits@latest
 ```
 
+### [aqua](https://aquaproj.github.io/)
+
+```console
+% aqua g -i Songmu/gocredits
+```
+
 Built binaries are available on GitHub Releases.
 <https://github.com/Songmu/gocredits/releases>
 
