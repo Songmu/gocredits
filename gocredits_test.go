@@ -2,7 +2,6 @@ package gocredits
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -31,7 +30,7 @@ func TestLicenseDirs_set(t *testing.T) {
 }
 
 func TestTakeCredits(t *testing.T) {
-	tmpd, err := ioutil.TempDir("", "gocredits-")
+	tmpd, err := os.MkdirTemp("", "gocredits-")
 	if err != nil {
 		t.Fatal(err)
 	}

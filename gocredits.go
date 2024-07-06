@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -124,7 +123,7 @@ func takeCredits(dir string, skipMissing bool) ([]*license, error) {
 		lpath string
 	)
 	for _, lpath = range []string{"LICENSE", "../LICENSE"} {
-		bs, err = ioutil.ReadFile(filepath.Join(goroot, lpath))
+		bs, err = os.ReadFile(filepath.Join(goroot, lpath))
 		if err == nil {
 			break
 		}
@@ -138,7 +137,7 @@ func takeCredits(dir string, skipMissing bool) ([]*license, error) {
 		if resp.StatusCode != http.StatusOK {
 			return nil, fmt.Errorf("failed to fetch LICENSE of Go")
 		}
-		bs, err = ioutil.ReadAll(resp.Body)
+		bs, err = io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, err
 		}
@@ -224,7 +223,7 @@ func takeCredits(dir string, skipMissing bool) ([]*license, error) {
 }
 
 func findLicense(dir string) (string, string, error) {
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return "", "", err
 	}
@@ -246,7 +245,7 @@ func findLicense(dir string) (string, string, error) {
 	if fileName == "" {
 		return "", "", os.ErrNotExist
 	}
-	bs, err := ioutil.ReadFile(filepath.Join(dir, fileName))
+	bs, err := os.ReadFile(filepath.Join(dir, fileName))
 	if err != nil {
 		return "", "", err
 	}
