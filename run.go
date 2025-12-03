@@ -8,7 +8,14 @@ import (
 )
 
 func run(command string, args ...string) (string, error) {
+	return runInDir("", command, args...)
+}
+
+func runInDir(dir, command string, args ...string) (string, error) {
 	cmd := exec.Command(command, args...)
+	if dir != "" {
+		cmd.Dir = dir
+	}
 	bufErr := &bytes.Buffer{}
 	cmd.Stderr = bufErr
 	out, err := cmd.Output()

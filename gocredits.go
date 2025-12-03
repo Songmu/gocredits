@@ -113,6 +113,59 @@ func (ld *licenseDirs) set(l *licenseDir) {
 	ld.dirs[l.name] = dirs
 }
 
+// depsFromGoSum parses go.sum to get dependencies.
+func depsFromGoSum(dir string) (*licenseDirs, error) {
+	gosum := filepath.Join(dir, "go.sum")
+	f, err := os.Open(gosum)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	ld := &licenseDirs{}
+	scr := bufio.NewScanner(f)
+	for scr.Scan() {
+		stuff := strings.Fields(scr.Text())
+		if len(stuff) != 3 {
+			continue
+		}
+		if strings.HasSuffix(stuff[1], "/go.mod") {
+			continue
+		}
+		ld.set(&licenseDir{
+			name:    stuff[0],
+			version: stuff[1],
+		})
+	}
+	if err := scr.Err(); err != nil {
+		return nil, err
+	}
+	return ld, nil
+}
+
+// depsFromGoList runs "go list -deps" to get dependencies.
+func depsFromGoList(dir string) (*licenseDirs, error) {
+	output, err := runInDir(dir, "go", "list", "-deps",
+		"-f", "{{if and (not .Standard) .Module}}{{.Module.Path}} {{.Module.Version}}{{end}}",
+		".")
+	if err != nil {
+		return nil, err
+	}
+
+	ld := &licenseDirs{}
+	for _, line := range strings.Split(output, "\n") {
+		fields := strings.Fields(line)
+		if len(fields) != 2 {
+			continue
+		}
+		ld.set(&licenseDir{
+			name:    fields[0],
+			version: fields[1],
+		})
+	}
+	return ld, nil
+}
+
 func takeCredits(dir string, skipMissing bool) ([]*license, error) {
 	goroot, err := run("go", "env", "GOROOT")
 	if err != nil {
@@ -153,36 +206,34 @@ func takeCredits(dir string, skipMissing bool) ([]*license, error) {
 		return nil, err
 	}
 	gopkgmod := filepath.Join(gopath, "pkg", "mod")
-	gosum := filepath.Join(dir, "go.sum")
-	f, err := os.Open(gosum)
-	if err != nil {
-		if os.IsNotExist(err) {
-			if _, err := os.Stat(filepath.Join(dir, "go.mod")); err != nil {
-				return nil, fmt.Errorf("use go modules")
-			}
-			return ret, nil
-		}
-		return nil, err
-	}
-	defer f.Close()
 
-	ld := &licenseDirs{}
-	scr := bufio.NewScanner(f)
-	for scr.Scan() {
-		stuff := strings.Fields(scr.Text())
-		if len(stuff) != 3 {
-			continue
+	var ld *licenseDirs
+	gomodPath := filepath.Join(dir, "go.mod")
+	gosumPath := filepath.Join(dir, "go.sum")
+	_, gomodErr := os.Stat(gomodPath)
+	_, gosumErr := os.Stat(gosumPath)
+
+	if gomodErr == nil {
+		// go.mod exists, use go.sum
+		ld, err = depsFromGoSum(dir)
+		if err != nil {
+			if os.IsNotExist(err) {
+				return ret, nil
+			}
+			return nil, err
 		}
-		if strings.HasSuffix(stuff[1], "/go.mod") {
-			continue
+	} else if gosumErr == nil {
+		// go.mod does not exist but go.sum exists (for backward compatibility)
+		ld, err = depsFromGoSum(dir)
+		if err != nil {
+			return nil, err
 		}
-		ld.set(&licenseDir{
-			name:    stuff[0],
-			version: stuff[1],
-		})
-	}
-	if err := scr.Err(); err != nil {
-		return nil, err
+	} else {
+		// neither go.mod nor go.sum exist, use go list
+		ld, err = depsFromGoList(dir)
+		if err != nil {
+			return nil, fmt.Errorf("no go.mod, go.sum, or Go files found")
+		}
 	}
 
 	for _, packageName := range ld.names {
