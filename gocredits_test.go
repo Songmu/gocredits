@@ -63,7 +63,8 @@ func TestTakeCredits(t *testing.T) {
 	}{
 		{"go.sum only", "gosum_only", false, nil},
 		{"go.mod only", "gomod_only", false, nil},
-		{"there is neither go.mod nor go.sum", "no_gomod_no_gosum", false, fmt.Errorf("use go modules")},
+		{"there is neither go.mod nor go.sum, use go list", "no_gomod_no_gosum_but_go_exists", false, nil},
+		{"there is neither go.mod nor go.sum nor go files", "no_gomod_no_gosum_no_go", false, fmt.Errorf("no go.mod, go.sum, or Go files found")},
 		{"gocredits can't fild the license", "no_license", false, fmt.Errorf("could not find the license for \"github.com/Songmu/no_license_pkg\"")},
 		{"gocredits can't fild the license. but skip", "no_license", true, nil},
 	}
