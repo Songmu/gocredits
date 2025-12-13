@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.4.0](https://github.com/Songmu/gocredits/compare/v0.3.1...v0.4.0) - 2025-12-13
+- feat: support `go list` for monorepo subdirectories without go.mod by @k1LoW in https://github.com/Songmu/gocredits/pull/22
+- update go version by @Songmu in https://github.com/Songmu/gocredits/pull/24
+- Bump codecov/codecov-action from 1 to 5 by @dependabot[bot] in https://github.com/Songmu/gocredits/pull/26
+- Bump actions/setup-go from 3 to 6 by @dependabot[bot] in https://github.com/Songmu/gocredits/pull/25
+- Bump actions/checkout from 3 to 6 by @dependabot[bot] in https://github.com/Songmu/gocredits/pull/27
+- introduce pinact and ghalint by @Songmu in https://github.com/Songmu/gocredits/pull/28
+
 ## [v0.3.1](https://github.com/Songmu/gocredits/compare/v0.3.0...v0.3.1) - 2024-07-06
 - docs: add the installation guide with aqua by @suzuki-shunsuke in https://github.com/Songmu/gocredits/pull/19
 - replace ioutil by @yulog in https://github.com/Songmu/gocredits/pull/21
