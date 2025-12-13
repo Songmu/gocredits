@@ -1,11 +1,16 @@
 name: test
 on:
+  pull_request:
+    branches: ["**"]
   push:
-    branches:
-    - "**"
+    branches: ["main"]
+permissions:
+  contents: read
+  pull-requests: read
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -15,9 +20,11 @@ jobs:
         - windows-latest
     steps:
     - name: checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - name: setup go
-      uses: actions/setup-go@v6
+      uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
       with:
         go-version-file: go.mod
     - name: test
@@ -27,4 +34,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.github_token }}
     - name: Send coverage
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2

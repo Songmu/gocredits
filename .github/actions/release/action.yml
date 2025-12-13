@@ -11,15 +11,15 @@ runs:
   using: composite
   steps:
   - name: setup go
-    uses: actions/setup-go@v3
+    uses: actions/setup-go@be3c94b385c4f180051c996d336f57a34c397495 # v3.6.1
     with:
-      go-version: 1.x
+      go-version-file: go.mod
   - name: build
     run: |
       make crossbuild
     shell: bash
   - name: upload
-    uses: softprops/action-gh-release@v1
+    uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v0.1.15
     env:
       GITHUB_TOKEN: ${{ inputs.token }}
     with:
