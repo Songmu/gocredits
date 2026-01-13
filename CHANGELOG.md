@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.4.1](https://github.com/Songmu/gocredits/compare/v0.4.0...v0.4.1) - 2026-01-13
+- Bump Songmu/tagpr from 1.8.4 to 1.9.2 by @dependabot[bot] in https://github.com/Songmu/gocredits/pull/29
+- Bump Songmu/tagpr from 1.9.2 to 1.11.0 by @dependabot[bot] in https://github.com/Songmu/gocredits/pull/32
+
 ## [v0.4.0](https://github.com/Songmu/gocredits/compare/v0.3.1...v0.4.0) - 2025-12-13
 - feat: support `go list` for monorepo subdirectories without go.mod by @k1LoW in https://github.com/Songmu/gocredits/pull/22
 - update go version by @Songmu in https://github.com/Songmu/gocredits/pull/24
