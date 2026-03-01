@@ -23,7 +23,7 @@ jobs:
         go-version-file: go.mod
     - name: tagpr
       id: tagpr
-      uses: Songmu/tagpr@6423eaf899ec18cb0f5ad3e5c3a7482595a62f04 # v1.12.1
+      uses: Songmu/tagpr@b3fb89424646b06c8aa460f50307c60b6a541425 # v1.17.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - uses: ./.github/actions/release
