@@ -24,10 +24,10 @@ install:
 	go install -ldflags=$(BUILD_LDFLAGS) ./cmd/gocredits
 
 .PHONY: prepare-release
-prepare-release: devel-deps
+prepare-release:
 	go get
 	go mod tidy
-	godzil credits -w .
+	go run ./cmd/gocredits -w .
 	git add go.mod CREDITS $(wildcard go.sum)
 
 DIST_DIR = dist
