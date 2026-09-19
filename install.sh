@@ -300,12 +300,12 @@ github_release() {
 verify() {
   artifact=$1
   if is_command gh && gh attestation verify --help >/dev/null 2>&1; then
-    if gh attestation verify "$artifact" --repo "$OWNER/$REPO" >/dev/null 2>&1; then
-      log_info "verified build provenance for ${artifact##*/}"
-      return
-    fi
-    log_info "build provenance unavailable; falling back to SHA256"
+    log_info "verifying build provenance for ${artifact##*/}"
+    gh attestation verify "$artifact" --repo "$OWNER/$REPO"
+    log_info "verified build provenance for ${artifact##*/}"
+    return
   fi
+  log_info "build provenance verification unavailable; falling back to SHA256"
   http_download "${tmpdir}/${CHECKSUM}" "${CHECKSUM_URL}"
   hash_sha256_verify "$artifact" "${tmpdir}/${CHECKSUM}"
 }

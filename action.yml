@@ -30,6 +30,7 @@ runs:
       shell: bash
       run: bash "$GITHUB_ACTION_PATH/action.sh"
       env:
+        GH_TOKEN: ${{ github.token }}
         GOCREDITS_DIRECTORY: ${{ inputs.directory }}
         GOCREDITS_SKIP_MISSING: ${{ inputs.skip-missing }}
         GOCREDITS_FORMAT: ${{ inputs.format }}
