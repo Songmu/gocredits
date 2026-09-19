@@ -1,19 +1,57 @@
 name: reviewdog
 on: [pull_request]
+
 permissions:
   contents: read
-  pull-requests:  write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   staticcheck:
     name: staticcheck
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-      - uses: reviewdog/action-staticcheck@50f9bfcf3738839ddc95deac241b904d77469096 # v1.28.0
-        with:
-          github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
-          fail_on_error: true
+    - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        persist-credentials: false
+    - uses: reviewdog/action-staticcheck@8a5a935620ac73e5d4db95c8dc952108a885a748 # v1.32.0
+      with:
+        reporter: github-pr-review
+        fail_on_error: true
+  misspell:
+    name: misspell
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        persist-credentials: false
+    - name: misspell
+      uses: reviewdog/action-misspell@da40ce414be6ce320a9322aa2bae10bd3b9e6ef3 # v1.29.0
+      with:
+        reporter: github-pr-review
+        level: warning
+        locale: "US"
+  actionlint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        persist-credentials: false
+    - uses: reviewdog/action-actionlint@8b682e1e7e512151d73a6b9449cbff173846226e # v1.74.0
+      with:
+        reporter: github-pr-review
