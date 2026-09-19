@@ -41,7 +41,11 @@ changed=true
 if [[ "$credits_existed" == true ]] && cmp -s "$previous_credits" "$credits"; then
   changed=false
 fi
+credits_output="$credits"
+if [[ "${RUNNER_OS:-}" == Windows ]]; then
+  credits_output="$(cygpath -m "$credits")"
+fi
 {
-  echo "credits=$credits"
+  echo "credits=$credits_output"
   echo "changed=$changed"
 } >> "$GITHUB_OUTPUT"
