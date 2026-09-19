@@ -1,0 +1,20 @@
+name: Set up gocredits
+description: Install gocredits and add it to PATH
+author: Songmu
+
+runs:
+  using: composite
+  steps:
+    - name: Install gocredits
+      shell: bash
+      run: |
+        version="v0.4.0"
+        bindir="${RUNNER_TEMP%/}/gocredits/bin"
+
+        sh "${GITHUB_ACTION_PATH}/install.sh" \
+          -b "${bindir}" "${version}"
+        echo "${bindir}" >> "${GITHUB_PATH}"
+
+branding:
+  icon: file-text
+  color: blue
