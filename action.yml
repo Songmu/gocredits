@@ -1,19 +1,38 @@
-name: Set up gocredits
-description: Install gocredits and add it to PATH
+name: Generate CREDITS with gocredits
+description: Install gocredits and overwrite the CREDITS file
 author: Songmu
+
+inputs:
+  directory:
+    description: The directory containing the Go module
+    required: false
+    default: .
+  skip-missing:
+    description: Skip dependencies whose licenses cannot be found
+    required: false
+    default: "false"
+  format:
+    description: A custom Go template for the generated CREDITS file
+    required: false
+outputs:
+  credits:
+    description: Absolute path to the generated CREDITS file
+    value: ${{ steps.gocredits.outputs.credits }}
+  changed:
+    description: Whether the CREDITS file was changed
+    value: ${{ steps.gocredits.outputs.changed }}
 
 runs:
   using: composite
   steps:
-    - name: Install gocredits
+    - name: Install and run gocredits
+      id: gocredits
       shell: bash
-      run: |
-        version="v0.4.0"
-        bindir="${RUNNER_TEMP%/}/gocredits/bin"
-
-        sh "${GITHUB_ACTION_PATH}/install.sh" \
-          -b "${bindir}" "${version}"
-        echo "${bindir}" >> "${GITHUB_PATH}"
+      run: bash "$GITHUB_ACTION_PATH/action.sh"
+      env:
+        GOCREDITS_DIRECTORY: ${{ inputs.directory }}
+        GOCREDITS_SKIP_MISSING: ${{ inputs.skip-missing }}
+        GOCREDITS_FORMAT: ${{ inputs.format }}
 
 branding:
   icon: file-text
