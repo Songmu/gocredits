@@ -25,7 +25,6 @@ install:
 
 .PHONY: prepare-release
 prepare-release:
-	go get
 	go mod tidy
 	go run ./cmd/gocredits -w .
 	git add go.mod CREDITS $(wildcard go.sum)
