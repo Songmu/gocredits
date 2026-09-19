@@ -28,7 +28,7 @@ prepare-release:
 	go mod tidy
 	go run ./cmd/gocredits -w .
 	git add go.mod CREDITS
-	if test -f go.sum; then git add go.sum; fi
+	if git ls-files --error-unmatch -- go.sum >/dev/null 2>&1 || test -f go.sum; then git add -A -- go.sum; fi
 
 DIST_DIR = dist
 .PHONY: crossbuild
