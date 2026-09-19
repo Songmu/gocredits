@@ -27,7 +27,8 @@ install:
 prepare-release:
 	go mod tidy
 	go run ./cmd/gocredits -w .
-	git add go.mod CREDITS $(wildcard go.sum)
+	git add go.mod CREDITS
+	if test -f go.sum; then git add go.sum; fi
 
 DIST_DIR = dist
 .PHONY: crossbuild
