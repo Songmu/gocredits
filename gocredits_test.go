@@ -1,11 +1,13 @@
 package gocredits
 
 import (
+	"archive/zip"
 	"fmt"
+	"io/fs"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -30,50 +32,155 @@ func TestLicenseDirs_set(t *testing.T) {
 }
 
 func TestTakeCredits(t *testing.T) {
-	tmpd, err := os.MkdirTemp("", "gocredits-")
-	if err != nil {
-		t.Fatal(err)
-	}
-	origCache := os.Getenv("GOCACHE")
-	os.Setenv("GOCACHE", tmpd)
-	defer os.Setenv("GOCACHE", origCache)
-
-	wd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := os.Chdir(tmpd); err != nil {
-		t.Fatal(err)
-	}
-	cmd := exec.Command("go", "install", "github.com/Songmu/gocredits/cmd/gocredits@v0.1.0")
-	if err := cmd.Run(); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := os.Chdir(wd); err != nil {
-		t.Fatal(err)
-	}
+	setupGoProxy(t)
 
 	tests := []struct {
 		name        string
 		dir         string
 		skipMissing bool
-		wantErr     error
+		want        []string
+		wantErr     string
 	}{
-		{"go.sum only", "gosum_only", false, nil},
-		{"go.mod only", "gomod_only", false, nil},
-		{"there is neither go.mod nor go.sum, use go list", "no_gomod_no_gosum_but_go_exists", false, nil},
-		{"there is neither go.mod nor go.sum nor go files", "no_gomod_no_gosum_no_go", false, fmt.Errorf("no go.mod, go.sum, or Go files found")},
-		{"gocredits can't fild the license", "no_license", false, fmt.Errorf("could not find the license for \"github.com/Songmu/no_license_pkg\"")},
-		{"gocredits can't fild the license. but skip", "no_license", true, nil},
+		{
+			name: "modules for any platform, excluding test-only and unreachable ones",
+			dir:  "multi_platform",
+			want: []string{"example.com/common", "example.com/keyring", "example.com/winonly", "example.com/winsvcdep"},
+		},
+		{
+			name: "no dependencies",
+			dir:  "gomod_only",
+			want: []string{},
+		},
+		{
+			name:    "no Go packages",
+			dir:     "no_go",
+			wantErr: "no Go packages found in",
+		},
+		{
+			name:    "gocredits can't find the license",
+			dir:     "no_license",
+			wantErr: `could not find the license for "example.com/nolicense"`,
+		},
+		{
+			name:        "gocredits can't find the license. but skip",
+			dir:         "no_license",
+			skipMissing: true,
+			want:        []string{},
+		},
 	}
 	for _, tt := range tests {
-		dir := filepath.Join(testdataDir(t), tt.dir)
-		_, gotErr := takeCredits(dir, tt.skipMissing)
-		if !reflect.DeepEqual(gotErr, tt.wantErr) {
-			t.Errorf("%s:\ngot  %v\nwant %v", tt.name, gotErr, tt.wantErr)
+		t.Run(tt.name, func(t *testing.T) {
+			// go list may update go.mod and go.sum, so keep the fixtures intact.
+			dir := t.TempDir()
+			if err := os.CopyFS(dir, os.DirFS(filepath.Join(testdataDir(t), tt.dir))); err != nil {
+				t.Fatal(err)
+			}
+			licenses, err := takeCredits(dir, tt.skipMissing)
+			if tt.wantErr != "" {
+				if err == nil || !strings.Contains(err.Error(), tt.wantErr) {
+					t.Fatalf("got error %v, want error containing %q", err, tt.wantErr)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			got := []string{}
+			for _, l := range licenses[1:] {
+				got = append(got, l.Name)
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("got %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// setupGoProxy serves the modules under testdata/proxy from a file-based
+// module proxy, so that the tests need neither the network nor the user's
+// module cache.
+func setupGoProxy(t *testing.T) {
+	t.Helper()
+	proxyDir := t.TempDir()
+	srcDir := filepath.Join(testdataDir(t), "proxy")
+	entries, err := filepath.Glob(filepath.Join(srcDir, "*", "*@*"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, modDir := range entries {
+		rel, err := filepath.Rel(srcDir, modDir)
+		if err != nil {
+			t.Fatal(err)
 		}
+		modPath, version, _ := strings.Cut(filepath.ToSlash(rel), "@")
+		writeProxyModule(t, filepath.Join(proxyDir, filepath.FromSlash(modPath), "@v"), modDir, modPath, version)
+	}
+
+	proxyURL := filepath.ToSlash(proxyDir)
+	if !strings.HasPrefix(proxyURL, "/") {
+		proxyURL = "/" + proxyURL
+	}
+	t.Setenv("GOPROXY", "file://"+proxyURL)
+	t.Setenv("GOPATH", t.TempDir())
+	t.Setenv("GOMODCACHE", "")
+	t.Setenv("GOFLAGS", "-mod=mod -modcacherw")
+	t.Setenv("GOSUMDB", "off")
+	t.Setenv("GONOPROXY", "")
+	t.Setenv("GOPRIVATE", "")
+	t.Setenv("GOTOOLCHAIN", "local")
+	t.Setenv("GOWORK", "off")
+}
+
+func writeProxyModule(t *testing.T, dst, modDir, modPath, version string) {
+	t.Helper()
+	if err := os.MkdirAll(dst, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	gomod, err := os.ReadFile(filepath.Join(modDir, "go.mod"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	files := map[string]string{
+		"list":            version + "\n",
+		version + ".info": fmt.Sprintf(`{"Version":%q}`, version),
+		version + ".mod":  string(gomod),
+	}
+	for name, content := range files {
+		if err := os.WriteFile(filepath.Join(dst, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	f, err := os.Create(filepath.Join(dst, version+".zip"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	zw := zip.NewWriter(f)
+	err = filepath.WalkDir(modDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		rel, err := filepath.Rel(modDir, path)
+		if err != nil {
+			return err
+		}
+		w, err := zw.Create(modPath + "@" + version + "/" + filepath.ToSlash(rel))
+		if err != nil {
+			return err
+		}
+		bs, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(bs)
+		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := zw.Close(); err != nil {
+		t.Fatal(err)
 	}
 }
 
