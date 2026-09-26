@@ -1,5 +1,5 @@
 package gocredits
 
-const version = "0.5.0"
+const version = "1.0.0"
 
 var revision = "HEAD"
