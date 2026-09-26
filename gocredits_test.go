@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -102,10 +103,20 @@ func TestTakeCredits(t *testing.T) {
 }
 
 func TestMissedDirs(t *testing.T) {
-	setupGoProxy(t)
 	dir := t.TempDir()
-	if err := os.CopyFS(dir, os.DirFS(filepath.Join(testdataDir(t), "multi_platform"))); err != nil {
-		t.Fatal(err)
+	files := map[string]string{
+		"go.mod":        "module example.com/app\n\ngo 1.21\n",
+		"main.go":       "package main\n\nfunc main() {}\n",
+		"other/main.go": fmt.Sprintf("//go:build !%s\n\npackage main\n\nfunc main() {}\n", runtime.GOOS),
+	}
+	for name, content := range files {
+		path := filepath.Join(dir, filepath.FromSlash(name))
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
 	}
 	// The CLI passes a relative path by default.
 	t.Chdir(dir)
@@ -124,7 +135,7 @@ func TestMissedDirs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []string{"./cmd/winsvc"}
+	want := []string{"./other"}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
