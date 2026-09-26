@@ -47,6 +47,11 @@ func TestTakeCredits(t *testing.T) {
 			want: []string{"example.com/common", "example.com/keyring", "example.com/winonly", "example.com/winsvcdep"},
 		},
 		{
+			name: "module replaced by a local directory",
+			dir:  "local_replace",
+			want: []string{"example.com/local"},
+		},
+		{
 			name: "no dependencies",
 			dir:  "gomod_only",
 			want: []string{},

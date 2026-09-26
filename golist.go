@@ -21,6 +21,7 @@ import (
 type goListModule struct {
 	Path    string
 	Version string
+	Dir     string
 	Main    bool
 	Replace *goListModule
 }
@@ -192,21 +193,25 @@ func (r *depsResolver) resolve() (*licenseDirs, error) {
 		queue = unlisted
 	}
 
-	modules := map[string]string{}
+	modules := map[string]*licenseDir{}
 	for importPath, s := range reach {
 		p, ok := r.pkgs[importPath]
 		if !ok || s.isEmpty() || p.Standard || p.Module == nil || p.Module.Main {
 			continue
 		}
 		m := p.Module
+		l := &licenseDir{name: m.Path, version: m.Version, dir: m.Dir}
 		if m.Replace != nil {
-			// A replacement by a local directory has no module version to look up.
-			if m.Replace.Version == "" {
-				continue
+			// A replacement by a local directory has no module path of its own to
+			// be credited as.
+			if m.Replace.Version != "" {
+				l.name, l.version = m.Replace.Path, m.Replace.Version
 			}
-			m = m.Replace
+			if l.dir == "" {
+				l.dir = m.Replace.Dir
+			}
 		}
-		modules[m.Path] = m.Version
+		modules[l.name] = l
 	}
 	names := make([]string, 0, len(modules))
 	for name := range modules {
@@ -216,10 +221,7 @@ func (r *depsResolver) resolve() (*licenseDirs, error) {
 
 	ld := &licenseDirs{}
 	for _, name := range names {
-		ld.set(&licenseDir{
-			name:    name,
-			version: modules[name],
-		})
+		ld.set(modules[name])
 	}
 	return ld, nil
 }

@@ -91,7 +91,7 @@ type license struct {
 }
 
 type licenseDir struct {
-	name, version string
+	name, version, dir string
 }
 
 type licenseDirs struct {
@@ -166,7 +166,10 @@ func takeCredits(dir string, skipMissing bool) ([]*license, error) {
 		dirs := ld.dirs[packageName]
 		for i := len(dirs) - 1; i >= 0; i-- {
 			dirInfo := dirs[i]
-			dir := filepath.Join(gopkgmod, encodedPath+"@"+dirInfo.version)
+			dir := dirInfo.dir
+			if dir == "" {
+				dir = filepath.Join(gopkgmod, encodedPath+"@"+dirInfo.version)
+			}
 			licenseFile, content, err := findLicense(dir)
 			if err != nil {
 				if os.IsNotExist(err) {
