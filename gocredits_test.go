@@ -101,6 +101,35 @@ func TestTakeCredits(t *testing.T) {
 	}
 }
 
+func TestMissedDirs(t *testing.T) {
+	setupGoProxy(t)
+	dir := t.TempDir()
+	if err := os.CopyFS(dir, os.DirFS(filepath.Join(testdataDir(t), "multi_platform"))); err != nil {
+		t.Fatal(err)
+	}
+	// The CLI passes a relative path by default.
+	t.Chdir(dir)
+	r := &depsResolver{dir: ".", pkgs: map[string]*goListPackage{}}
+	listed, err := r.list([]string{"./..."})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var roots []*goListPackage
+	for _, p := range listed {
+		if !p.DepOnly {
+			roots = append(roots, p)
+		}
+	}
+	got, err := r.missedDirs(roots)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []string{"./cmd/winsvc"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
 // setupGoProxy serves the modules under testdata/proxy from a file-based
 // module proxy, so that the tests need neither the network nor the user's
 // module cache.

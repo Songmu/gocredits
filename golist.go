@@ -236,24 +236,14 @@ func (r *depsResolver) listRoots() ([]*goListPackage, error) {
 		return nil, err
 	}
 	var roots []*goListPackage
-	matched := map[string]bool{}
 	for _, p := range listed {
-		if p.DepOnly {
-			continue
+		if !p.DepOnly {
+			roots = append(roots, p)
 		}
-		roots = append(roots, p)
-		matched[realPath(p.Dir)] = true
 	}
-
-	dirs, err := packageDirs(r.dir)
+	missed, err := r.missedDirs(roots)
 	if err != nil {
 		return nil, err
-	}
-	var missed []string
-	for _, d := range dirs {
-		if !matched[realPath(filepath.Join(r.dir, d))] {
-			missed = append(missed, "./"+filepath.ToSlash(d))
-		}
 	}
 	if len(missed) == 0 {
 		return roots, nil
@@ -268,6 +258,24 @@ func (r *depsResolver) listRoots() ([]*goListPackage, error) {
 		}
 	}
 	return roots, nil
+}
+
+func (r *depsResolver) missedDirs(roots []*goListPackage) ([]string, error) {
+	matched := map[string]bool{}
+	for _, p := range roots {
+		matched[realPath(p.Dir)] = true
+	}
+	dirs, err := packageDirs(r.dir)
+	if err != nil {
+		return nil, err
+	}
+	var missed []string
+	for _, d := range dirs {
+		if !matched[realPath(filepath.Join(r.dir, d))] {
+			missed = append(missed, "./"+filepath.ToSlash(d))
+		}
+	}
+	return missed, nil
 }
 
 // The skipped directories follow the rules of "./..." in module mode.
@@ -310,6 +318,9 @@ func packageDirs(root string) ([]string, error) {
 // go list may report a directory through a different path, e.g. /private/tmp
 // for /tmp on macOS.
 func realPath(path string) string {
+	if p, err := filepath.Abs(path); err == nil {
+		path = p
+	}
 	if p, err := filepath.EvalSymlinks(path); err == nil {
 		return p
 	}
