@@ -1,5 +1,12 @@
 # Changelog
 
+## [v1.0.0](https://github.com/Songmu/gocredits/compare/v0.5.0...v1.0.0) - 2026-09-26
+
+- Bump codecov/codecov-action from 7.1.0 to 7.1.1 by @dependabot[bot] in https://github.com/Songmu/gocredits/pull/53
+- Bump actions/checkout from 7.0.0 to 7.0.1 by @dependabot[bot] in https://github.com/Songmu/gocredits/pull/52
+- Bump reviewdog/action-actionlint from 1.74.0 to 1.75.0 by @dependabot[bot] in https://github.com/Songmu/gocredits/pull/51
+- feat!: collect dependencies via go list for all platforms instead of go.sum by @k1LoW in https://github.com/Songmu/gocredits/pull/55
+
 ## [v0.5.0](https://github.com/Songmu/gocredits/compare/v0.4.0...v0.5.0) - 2026-09-19
 
 - Bump Songmu/tagpr from 1.8.4 to 1.9.2 by @dependabot[bot] in https://github.com/Songmu/gocredits/pull/29
