@@ -54,20 +54,19 @@ root:
 
 ```yaml
 permissions:
-  attestations: read
   contents: read
 
 steps:
 - uses: actions/checkout@v7
 - id: gocredits
-  uses: Songmu/gocredits@v0
+  uses: Songmu/gocredits@v1
 ```
 
 The module directory, missing-license behavior, and output format can be
 configured:
 
 ```yaml
-- uses: Songmu/gocredits@v0
+- uses: Songmu/gocredits@v1
   with:
     directory: ./path/to/module
     skip-missing: true
