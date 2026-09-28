@@ -3,6 +3,7 @@ module example.com/app
 go 1.21
 
 require (
+	example.com/aixcgo v1.0.0
 	example.com/common v1.0.0
 	example.com/keyring v1.0.0
 	example.com/linuxonly v1.0.0

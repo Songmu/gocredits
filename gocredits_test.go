@@ -45,7 +45,7 @@ func TestTakeCredits(t *testing.T) {
 		{
 			name: "modules for any platform, excluding test-only and unreachable ones",
 			dir:  "multi_platform",
-			want: []string{"example.com/common", "example.com/keyring", "example.com/winonly", "example.com/winsvcdep"},
+			want: []string{"example.com/aixcgo", "example.com/common", "example.com/keyring", "example.com/winonly", "example.com/winsvcdep"},
 		},
 		{
 			name: "module replaced by a local directory",
