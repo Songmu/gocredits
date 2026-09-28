@@ -34,6 +34,7 @@ type goListPackage struct {
 	Module         *goListModule
 	GoFiles        []string
 	CgoFiles       []string
+	CFiles         []string
 	IgnoredGoFiles []string
 	Error          *struct {
 		Err string
@@ -42,6 +43,14 @@ type goListPackage struct {
 
 func (p *goListPackage) excludedByConstraints() bool {
 	return len(p.GoFiles) == 0 && len(p.CgoFiles) == 0 && len(p.IgnoredGoFiles) > 0
+}
+
+// go list rejects C files in a package that does not use cgo on the host, even
+// when the files importing "C" are only excluded there, such as a package whose
+// cgo files are all for aix. matchConfigs evaluates those files per config, so
+// the host-only error does not affect what gets credited.
+func (p *goListPackage) cgoExcludedOnHost() bool {
+	return len(p.CFiles) > 0 && len(p.CgoFiles) == 0 && len(p.IgnoredGoFiles) > 0
 }
 
 type buildConfig struct {
@@ -365,7 +374,7 @@ func (r *depsResolver) list(patterns []string) ([]*goListPackage, error) {
 			}
 			return nil, err
 		}
-		if p.Error != nil && !p.excludedByConstraints() {
+		if p.Error != nil && !p.excludedByConstraints() && !p.cgoExcludedOnHost() {
 			return nil, fmt.Errorf("failed to list package %q: %s", p.ImportPath, p.Error.Err)
 		}
 		if _, ok := r.pkgs[p.ImportPath]; !ok {
