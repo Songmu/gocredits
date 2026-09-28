@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.0.1](https://github.com/Songmu/gocredits/compare/v1.0.0...v1.0.1) - 2026-09-28
+
+- fix: tolerate C files rejected only because cgo files are excluded on the host by @k1LoW in https://github.com/Songmu/gocredits/pull/62
+- Bump reviewdog/action-misspell from 1.29.0 to 1.30.1 by @dependabot[bot] in https://github.com/Songmu/gocredits/pull/58
+- Bump reviewdog/action-staticcheck from 1.32.0 to 1.32.1 by @dependabot[bot] in https://github.com/Songmu/gocredits/pull/57
+- Bump reviewdog/action-actionlint from 1.75.0 to 1.77.0 by @dependabot[bot] in https://github.com/Songmu/gocredits/pull/56
+- Bump Songmu/tagpr from 1.20.3 to 1.21.0 by @dependabot[bot] in https://github.com/Songmu/gocredits/pull/59
+
 ## [v1.0.0](https://github.com/Songmu/gocredits/compare/v0.5.0...v1.0.0) - 2026-09-26
 
 - Bump codecov/codecov-action from 7.1.0 to 7.1.1 by @dependabot[bot] in https://github.com/Songmu/gocredits/pull/53
