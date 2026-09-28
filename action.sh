@@ -2,7 +2,7 @@
 set -euo pipefail
 
 cd "$GITHUB_WORKSPACE"
-gocredits_version="v1.0.0"
+gocredits_version="v1.0.1"
 gocredits_bin="$(mktemp -d "${RUNNER_TEMP%/}/gocredits.XXXXXX")"
 previous_credits="$(mktemp "${RUNNER_TEMP%/}/gocredits-credits.XXXXXX")"
 trap 'rm -rf "$gocredits_bin" "$previous_credits"' EXIT
