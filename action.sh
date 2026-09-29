@@ -2,7 +2,7 @@
 set -euo pipefail
 
 cd "$GITHUB_WORKSPACE"
-gocredits_version="${GOCREDITS_TEST_VERSION:-v1.0.1}"
+gocredits_version="${GOCREDITS_TEST_VERSION:-v1.0.2}"
 gocredits_bin="${RUNNER_TEMP%/}/gocredits/bin"
 
 case "$GOCREDITS_RUN" in
