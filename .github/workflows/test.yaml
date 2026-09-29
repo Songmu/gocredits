@@ -45,20 +45,6 @@ jobs:
         go-version-file: go.mod
     - name: test
       run: go test -race -coverprofile coverage.out -covermode atomic ./...
-    - name: Install gocredits without running it
-      id: install-gocredits
-      uses: ./
-      with:
-        run: false
-    - name: Test installed gocredits
-      env:
-        CREDITS: ${{ steps.install-gocredits.outputs.credits }}
-        CHANGED: ${{ steps.install-gocredits.outputs.changed }}
-      run: |
-        test -z "$CREDITS"
-        test -z "$CHANGED"
-        command -v gocredits
-        gocredits -version
     - name: Generate CREDITS with gocredits
       id: gocredits
       uses: ./
@@ -78,3 +64,38 @@ jobs:
         esac
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+
+  test-install-only:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - ubuntu-latest
+        - macOS-latest
+        - windows-latest
+    steps:
+    - name: Set git to use LF
+      run: |
+        git config --global core.autocrlf false
+        git config --global core.eol lf
+      if: "matrix.os == 'windows-latest'"
+    - name: checkout
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - name: Install gocredits without running it
+      id: install-gocredits
+      uses: ./
+      with:
+        run: false
+    - name: Test installed gocredits
+      env:
+        CREDITS: ${{ steps.install-gocredits.outputs.credits }}
+        CHANGED: ${{ steps.install-gocredits.outputs.changed }}
+      run: |
+        test -z "$CREDITS"
+        test -z "$CHANGED"
+        command -v gocredits
+        gocredits -version
