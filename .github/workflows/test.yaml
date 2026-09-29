@@ -51,6 +51,8 @@ jobs:
   test-action:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
+    env:
+      GOCREDITS_TEST_VERSION: latest
     strategy:
       fail-fast: false
       matrix:
