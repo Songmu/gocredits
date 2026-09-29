@@ -1,8 +1,12 @@
 name: Generate CREDITS with gocredits
-description: Install gocredits and overwrite the CREDITS file
+description: Install gocredits and optionally overwrite the CREDITS file
 author: Songmu
 
 inputs:
+  run:
+    description: Run gocredits after installation; set to false to install only
+    required: false
+    default: "true"
   directory:
     description: The directory containing the Go module
     required: false
@@ -16,22 +20,23 @@ inputs:
     required: false
 outputs:
   credits:
-    description: Absolute path to the generated CREDITS file
+    description: Absolute path to the generated CREDITS file; empty when run is false
     value: ${{ steps.gocredits.outputs.credits }}
   changed:
-    description: Whether the CREDITS file was changed
+    description: Whether the CREDITS file was changed; empty when run is false
     value: ${{ steps.gocredits.outputs.changed }}
 
 runs:
   using: composite
   steps:
-    - name: Install and run gocredits
+    - name: Install and optionally run gocredits
       id: gocredits
       shell: bash
       run: bash "$GITHUB_ACTION_PATH/action.sh"
       env:
-        # Authenticate gh attestation verify. Callers must grant attestations: read.
+        # Authenticate gh attestation verify.
         GH_TOKEN: ${{ github.token }}
+        GOCREDITS_RUN: ${{ inputs.run }}
         GOCREDITS_DIRECTORY: ${{ inputs.directory }}
         GOCREDITS_SKIP_MISSING: ${{ inputs.skip-missing }}
         GOCREDITS_FORMAT: ${{ inputs.format }}
