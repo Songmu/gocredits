@@ -45,27 +45,10 @@ jobs:
         go-version-file: go.mod
     - name: test
       run: go test -race -coverprofile coverage.out -covermode atomic ./...
-    - name: Generate CREDITS with gocredits
-      id: gocredits
-      uses: ./
-    - name: Test gocredits outputs
-      env:
-        CREDITS: ${{ steps.gocredits.outputs.credits }}
-        CHANGED: ${{ steps.gocredits.outputs.changed }}
-      run: |
-        test -f "$CREDITS"
-        case "$CHANGED" in
-          true | false)
-            ;;
-          *)
-            echo "unexpected changed output: $CHANGED" >&2
-            exit 1
-            ;;
-        esac
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
 
-  test-install-only:
+  test-action:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     strategy:
@@ -85,6 +68,10 @@ jobs:
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         persist-credentials: false
+    - name: setup go
+      uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      with:
+        go-version-file: go.mod
     - name: Install gocredits without running it
       id: install-gocredits
       uses: ./
@@ -99,3 +86,20 @@ jobs:
         test -z "$CHANGED"
         command -v gocredits
         gocredits -version
+    - name: Generate CREDITS with gocredits
+      id: gocredits
+      uses: ./
+    - name: Test gocredits outputs
+      env:
+        CREDITS: ${{ steps.gocredits.outputs.credits }}
+        CHANGED: ${{ steps.gocredits.outputs.changed }}
+      run: |
+        test -f "$CREDITS"
+        case "$CHANGED" in
+          true | false)
+            ;;
+          *)
+            echo "unexpected changed output: $CHANGED" >&2
+            exit 1
+            ;;
+        esac
