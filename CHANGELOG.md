@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.0.2](https://github.com/Songmu/gocredits/compare/v1.0.1...v1.0.2) - 2026-09-29
+
+- Add install-only mode to the GitHub Action by @Songmu in https://github.com/Songmu/gocredits/pull/64
+- Refactor release into reusable workflow by @Songmu in https://github.com/Songmu/gocredits/pull/67
+- Test the action with the latest published release by @Songmu in https://github.com/Songmu/gocredits/pull/68
+
 ## [v1.0.1](https://github.com/Songmu/gocredits/compare/v1.0.0...v1.0.1) - 2026-09-28
 
 - fix: tolerate C files rejected only because cgo files are excluded on the host by @k1LoW in https://github.com/Songmu/gocredits/pull/62
