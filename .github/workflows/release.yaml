@@ -43,6 +43,7 @@ jobs:
         token: ${{ github.token }}
         path: release
         generatenotes: true
+        replace: true
     - name: update major version tag
       uses: haya14busa/action-update-semver@7d2c558640ea49e798d46539536190aff8c18715 # v1.5.1
       with:
