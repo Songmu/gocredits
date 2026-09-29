@@ -20,6 +20,12 @@ const (
 {{$elm.URL}}
 ----------------------------------------------------------------
 {{$elm.Content}}
+{{if $elm.Notice -}}
+----------------------------------------------------------------
+NOTICE
+----------------------------------------------------------------
+{{$elm.Notice}}
+{{end -}}
 ================================================================
 
 {{end}}`
@@ -88,6 +94,8 @@ func printVersion(out io.Writer) error {
 
 type license struct {
 	Name, URL, FilePath, Content string
+	// Notice is the content of the NOTICE file next to the license, if any.
+	Notice string `json:",omitempty"`
 }
 
 type licenseDir struct {
@@ -177,11 +185,16 @@ func takeCredits(dir string, skipMissing bool) ([]*license, error) {
 				}
 				return nil, err
 			}
+			notice, err := findNotice(dir)
+			if err != nil {
+				return nil, err
+			}
 			ret = append(ret, &license{
 				Name:     packageName,
 				URL:      fmt.Sprintf("https://%s", packageName),
 				FilePath: filepath.Join(dir, licenseFile),
 				Content:  content,
+				Notice:   notice,
 			})
 			found = true
 			break
@@ -225,6 +238,26 @@ func findLicense(dir string) (string, string, error) {
 		return "", "", err
 	}
 	return fileName, string(bs), nil
+}
+
+// findNotice returns the content of the NOTICE file in dir, or an empty string
+// when there is none.
+func findNotice(dir string) (string, error) {
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return "", err
+	}
+	for _, f := range files {
+		if f.IsDir() || !reNotice.MatchString(f.Name()) {
+			continue
+		}
+		bs, err := os.ReadFile(filepath.Join(dir, f.Name()))
+		if err != nil {
+			return "", err
+		}
+		return string(bs), nil
+	}
+	return "", nil
 }
 
 // copied from cmd/go/internal/module/module.go

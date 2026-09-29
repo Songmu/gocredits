@@ -4,12 +4,14 @@ import (
 	"archive/zip"
 	"fmt"
 	"io/fs"
+	"maps"
 	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"strings"
 	"testing"
+	"text/template"
 )
 
 func TestLicenseDirs_set(t *testing.T) {
@@ -40,6 +42,7 @@ func TestTakeCredits(t *testing.T) {
 		dir         string
 		skipMissing bool
 		want        []string
+		wantNotices map[string]string // modules with a NOTICE file only
 		wantErr     string
 	}{
 		{
@@ -48,9 +51,10 @@ func TestTakeCredits(t *testing.T) {
 			want: []string{"example.com/aixcgo", "example.com/common", "example.com/keyring", "example.com/winonly", "example.com/winsvcdep"},
 		},
 		{
-			name: "module replaced by a local directory",
-			dir:  "local_replace",
-			want: []string{"example.com/local"},
+			name:        "module replaced by a local directory, with a NOTICE file",
+			dir:         "local_replace",
+			want:        []string{"example.com/local"},
+			wantNotices: map[string]string{"example.com/local": "Dummy notice for testing.\n"},
 		},
 		{
 			name: "no dependencies",
@@ -92,13 +96,87 @@ func TestTakeCredits(t *testing.T) {
 				t.Fatal(err)
 			}
 			got := []string{}
+			gotNotices := map[string]string{}
 			for _, l := range licenses[1:] {
 				got = append(got, l.Name)
+				if l.Notice != "" {
+					gotNotices[l.Name] = l.Notice
+				}
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("got %v, want %v", got, tt.want)
 			}
+			if !maps.Equal(gotNotices, tt.wantNotices) {
+				t.Errorf("got notices %q, want %q", gotNotices, tt.wantNotices)
+			}
 		})
+	}
+}
+
+func TestFindNotice(t *testing.T) {
+	tests := []struct {
+		files []string
+		want  string
+	}{
+		{files: []string{"LICENSE", "NOTICE"}, want: "NOTICE"},
+		{files: []string{"LICENSE", "notice.txt"}, want: "notice.txt"},
+		{files: []string{"LICENSE", "NOTICE.md"}, want: "NOTICE.md"},
+		{files: []string{"LICENSE", "NOTICES", "NOTICE-THIRD-PARTY", "notice.go"}, want: ""},
+		{files: []string{"LICENSE"}, want: ""},
+	}
+	for _, tt := range tests {
+		t.Run(strings.Join(tt.files, ","), func(t *testing.T) {
+			dir := t.TempDir()
+			for _, name := range tt.files {
+				// Each file holds its own name, so the result tells which one was read.
+				if err := os.WriteFile(filepath.Join(dir, name), []byte(name), 0o644); err != nil {
+					t.Fatal(err)
+				}
+			}
+			got, err := findNotice(dir)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got != tt.want {
+				t.Errorf("got %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDefaultTemplate(t *testing.T) {
+	tmpl := template.Must(template.New(cmdName).Parse(defaultTmpl))
+	data := struct{ Licenses []*license }{Licenses: []*license{
+		{Name: "example.com/plain", URL: "https://example.com/plain", Content: "License A\n"},
+		{Name: "example.com/noticed", URL: "https://example.com/noticed", Content: "License B\n", Notice: "Notice B\n"},
+	}}
+	var buf strings.Builder
+	if err := tmpl.Execute(&buf, data); err != nil {
+		t.Fatal(err)
+	}
+	// The entry without a NOTICE keeps the output of earlier versions.
+	want := `example.com/plain
+https://example.com/plain
+----------------------------------------------------------------
+License A
+
+================================================================
+
+example.com/noticed
+https://example.com/noticed
+----------------------------------------------------------------
+License B
+
+----------------------------------------------------------------
+NOTICE
+----------------------------------------------------------------
+Notice B
+
+================================================================
+
+`
+	if got := buf.String(); got != want {
+		t.Errorf("got:\n%s\nwant:\n%s", got, want)
 	}
 }
 

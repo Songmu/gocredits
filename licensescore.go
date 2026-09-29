@@ -10,6 +10,9 @@ var (
 		`(copy(?:ing|right)(?:\.[^.]+)?)|` +
 		`(licen[sc]e\.[^.]+)` +
 		`)$`)
+
+	// NOTICE files as described in section 4(d) of the Apache License 2.0
+	reNotice = regexp.MustCompile(`(?i)^notice(?:\.(?:md|markdown|txt))?$`)
 )
 
 // scoreLicenseName returns a factor between 0 and 1 weighting how likely

@@ -9,7 +9,7 @@ gocredits
 [license]: https://github.com/Songmu/gocredits/blob/main/LICENSE
 [PkgGoDev]: https://pkg.go.dev/github.com/Songmu/gocredits
 
-gocredits creates CREDITS file from LICENSE files of dependencies
+gocredits creates CREDITS file from LICENSE (and NOTICE) files of dependencies
 
 ## Synopsis
 
@@ -21,6 +21,11 @@ gocredits . > CREDITS
 
 When distributing built executable in Go, we need to include LICENSE of the dependent
 libraries into the package, so gocredits bundle them together as a CREDITS file.
+
+If a dependency also ships a NOTICE file (`NOTICE`, `NOTICE.txt` or `NOTICE.md`), as
+section 4(d) of the Apache License 2.0 asks redistributors to include, gocredits puts it
+right after that dependency's LICENSE. The output for dependencies without a NOTICE file
+does not change.
 
 To use `gocredits`, we should use go modules for dependency management.
 
