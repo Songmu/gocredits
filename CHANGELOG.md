@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.1.0](https://github.com/Songmu/gocredits/compare/v1.0.2...v1.1.0) - 2026-09-29
+
+- feat: collect NOTICE files alongside LICENSE files by @kan in https://github.com/Songmu/gocredits/pull/69
+
 ## [v1.0.2](https://github.com/Songmu/gocredits/compare/v1.0.1...v1.0.2) - 2026-09-29
 
 - Add install-only mode to the GitHub Action by @Songmu in https://github.com/Songmu/gocredits/pull/64
