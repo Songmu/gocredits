@@ -34,7 +34,7 @@ runs:
       shell: bash
       run: bash "$GITHUB_ACTION_PATH/action.sh"
       env:
-        # Authenticate gh attestation verify. Callers must grant attestations: read.
+        # Authenticate gh attestation verify.
         GH_TOKEN: ${{ github.token }}
         GOCREDITS_RUN: ${{ inputs.run }}
         GOCREDITS_DIRECTORY: ${{ inputs.directory }}

@@ -54,7 +54,6 @@ root:
 
 ```yaml
 permissions:
-  attestations: read
   contents: read
 
 steps:
@@ -90,9 +89,7 @@ available to subsequent steps:
 The action outputs the absolute `credits` path and a `changed` value indicating
 whether the file contents changed when `run` is `true`. Both outputs are empty
 when `run` is `false`. The action does not commit or push the generated file.
-The `attestations: read` permission allows the action to verify the downloaded
-gocredits binary. The `contents: read` permission is required by the checkout
-step.
+The `contents: read` permission is required by the checkout step.
 
 ## Author
 
