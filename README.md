@@ -54,6 +54,7 @@ root:
 
 ```yaml
 permissions:
+  attestations: read
   contents: read
 
 steps:
@@ -75,11 +76,23 @@ configured:
       {{end}}
 ```
 
+By default, the action runs gocredits after installing it. To install it
+without generating `CREDITS`, set `run` to `false`. The installed command is
+available to subsequent steps:
+
+```yaml
+- uses: Songmu/gocredits@v1
+  with:
+    run: false
+- run: gocredits -version
+```
+
 The action outputs the absolute `credits` path and a `changed` value indicating
-whether the file contents changed. It does not commit or push the generated
-file. The `attestations: read` permission allows the action to verify the
-downloaded gocredits binary. The `contents: read` permission is required by the
-checkout step.
+whether the file contents changed when `run` is `true`. Both outputs are empty
+when `run` is `false`. The action does not commit or push the generated file.
+The `attestations: read` permission allows the action to verify the downloaded
+gocredits binary. The `contents: read` permission is required by the checkout
+step.
 
 ## Author
 

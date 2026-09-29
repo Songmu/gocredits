@@ -8,6 +8,7 @@ on:
     - "main"
 
 permissions:
+  attestations: read
   contents: read
 
 concurrency:
@@ -45,5 +46,36 @@ jobs:
         go-version-file: go.mod
     - name: test
       run: go test -race -coverprofile coverage.out -covermode atomic ./...
+    - name: Install gocredits without running it
+      id: install-gocredits
+      uses: ./
+      with:
+        run: false
+    - name: Test installed gocredits
+      env:
+        CREDITS: ${{ steps.install-gocredits.outputs.credits }}
+        CHANGED: ${{ steps.install-gocredits.outputs.changed }}
+      run: |
+        test -z "$CREDITS"
+        test -z "$CHANGED"
+        command -v gocredits
+        gocredits -version
+    - name: Generate CREDITS with gocredits
+      id: gocredits
+      uses: ./
+    - name: Test gocredits outputs
+      env:
+        CREDITS: ${{ steps.gocredits.outputs.credits }}
+        CHANGED: ${{ steps.gocredits.outputs.changed }}
+      run: |
+        test -f "$CREDITS"
+        case "$CHANGED" in
+          true | false)
+            ;;
+          *)
+            echo "unexpected changed output: $CHANGED" >&2
+            exit 1
+            ;;
+        esac
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1

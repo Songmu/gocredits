@@ -3,13 +3,32 @@ set -euo pipefail
 
 cd "$GITHUB_WORKSPACE"
 gocredits_version="v1.0.1"
-gocredits_bin="$(mktemp -d "${RUNNER_TEMP%/}/gocredits.XXXXXX")"
-previous_credits="$(mktemp "${RUNNER_TEMP%/}/gocredits-credits.XXXXXX")"
-trap 'rm -rf "$gocredits_bin" "$previous_credits"' EXIT
+gocredits_bin="${RUNNER_TEMP%/}/gocredits/bin"
+
+case "$GOCREDITS_RUN" in
+  true | false)
+    ;;
+  *)
+    echo "::error::run must be either true or false"
+    exit 1
+    ;;
+esac
 
 sh "$GITHUB_ACTION_PATH/install.sh" \
   -b "$gocredits_bin" "$gocredits_version"
-export PATH="$gocredits_bin:$PATH"
+echo "$gocredits_bin" >> "$GITHUB_PATH"
+
+if [[ "$GOCREDITS_RUN" == false ]]; then
+  exit 0
+fi
+
+gocredits_executable="$gocredits_bin/gocredits"
+if [[ "${RUNNER_OS:-}" == Windows ]]; then
+  gocredits_executable="${gocredits_executable}.exe"
+fi
+
+previous_credits="$(mktemp "${RUNNER_TEMP%/}/gocredits-credits.XXXXXX")"
+trap 'rm -f "$previous_credits"' EXIT
 
 module_directory="$(cd "$GOCREDITS_DIRECTORY" && pwd -P)"
 credits="$module_directory/CREDITS"
@@ -35,7 +54,7 @@ if [[ -n "$GOCREDITS_FORMAT" ]]; then
   args+=(-f "$GOCREDITS_FORMAT")
 fi
 
-gocredits "${args[@]}" "$module_directory"
+"$gocredits_executable" "${args[@]}" "$module_directory"
 
 changed=true
 if [[ "$credits_existed" == true ]] && cmp -s "$previous_credits" "$credits"; then
